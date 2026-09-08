@@ -2,5 +2,7 @@
   "name": "Spatial Editor",
   "description": "A Figma-like spatial document editor and floor planner with a geometry engine.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

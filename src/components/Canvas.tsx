@@ -782,31 +782,6 @@ export function Canvas() {
                   }
                 }}
               />
-              <text
-                x={centroid.x}
-                y={centroid.y}
-                fill={isSelected ? (team ? team.color : "#60a5fa") : (team ? team.color : "#6b7280")}
-                fontSize={12 / camera.zoom}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="font-mono pointer-events-none"
-                opacity={team ? 1 : 0.6}
-              >
-                {region.name || (region.spaceType ? region.spaceType.toUpperCase() : 'AREA')}
-              </text>
-              {team && (
-                 <text
-                 x={centroid.x}
-                 y={centroid.y + (16 / camera.zoom)}
-                 fill={team.color}
-                 fontSize={10 / camera.zoom}
-                 textAnchor="middle"
-                 dominantBaseline="middle"
-                 className="font-mono pointer-events-none font-bold"
-               >
-                 {team.name}
-               </text>
-              )}
             </g>
           );
         })}
@@ -826,19 +801,6 @@ export function Canvas() {
                 strokeWidth={isSelected ? strokeWidth * 1.5 : strokeWidth}
                 strokeLinecap="round"
               />
-              {isSelected && (
-                <text
-                  x={(start.x + end.x) / 2}
-                  y={(start.y + end.y) / 2 - (10 / camera.zoom)}
-                  fill="#3b82f6"
-                  fontSize={12 / camera.zoom}
-                  textAnchor="middle"
-                  className="font-mono"
-                  pointerEvents="none"
-                >
-                  {Math.round(len)} px
-                </text>
-              )}
             </g>
           );
         })}
@@ -942,16 +904,6 @@ export function Canvas() {
               }}
             >
               <FurnitureShape type={f.type} strokeColor={strokeColor} baseFill={baseFill} strokeWidth={strokeWidth} />
-              {person && (
-                <text y={f.type === 'desk' ? -15 : -20} fill={team ? team.color : "#d1d5db"} fontSize={8 / camera.zoom} textAnchor="middle" className="font-semibold pointer-events-none">
-                  {person.name}
-                </text>
-              )}
-              {viewMode === 'vacancies' && f.type === 'desk' && !f.personId && (
-                <text y={-15} fill="#ef4444" fontSize={8 / camera.zoom} textAnchor="middle" className="font-bold pointer-events-none">
-                  VACANT
-                </text>
-              )}
             </g>
           );
         })}
@@ -968,17 +920,6 @@ export function Canvas() {
               strokeWidth={strokeWidth}
               strokeDasharray={`${5/camera.zoom},${5/camera.zoom}`}
             />
-            <text
-              x={(document.nodes[drawingEdgeStartNodeId].position.x + cursorWorldPosition.x) / 2}
-              y={(document.nodes[drawingEdgeStartNodeId].position.y + cursorWorldPosition.y) / 2 - (10 / camera.zoom)}
-              fill="#9ca3af"
-              fontSize={12 / camera.zoom}
-              textAnchor="middle"
-              className="font-mono"
-              pointerEvents="none"
-            >
-              {Math.round(distance(document.nodes[drawingEdgeStartNodeId].position, cursorWorldPosition))} px
-            </text>
           </g>
         )}
 
@@ -1065,6 +1006,133 @@ export function Canvas() {
             })()}
           </g>
         )}
+        {/* Render Texts (Always on top) */}
+        <g pointerEvents="none">
+          {/* Region Texts */}
+          {Object.values(document.regions).map(region => {
+            const isSelected = selectedIds.includes(region.id);
+            const team = region.teamId ? document.teams[region.teamId] : null;
+            
+            const pts: Point[] = [];
+            if (region.boundaryEdgeIds.length > 0) {
+              let currentEdge = document.edges[region.boundaryEdgeIds[0]];
+              if (currentEdge) {
+                let currentNodeId = currentEdge.startNodeId;
+                for (const edgeId of region.boundaryEdgeIds) {
+                  const edge = document.edges[edgeId];
+                  if (!edge || !document.nodes[currentNodeId]) break;
+                  pts.push(document.nodes[currentNodeId].position);
+                  currentNodeId = edge.startNodeId === currentNodeId ? edge.endNodeId : edge.startNodeId;
+                }
+              }
+            }
+            if (pts.length < 3) return null;
+            const centroid = polygonCentroid(pts);
+            
+            let regionOpacity = 1;
+            if (viewMode === 'team_highlight' && highlightTeamId && team?.id !== highlightTeamId) {
+              regionOpacity = 0.2;
+            } else if (viewMode === 'vacancies') {
+              regionOpacity = 0.2;
+            }
+
+            return (
+              <g key={`text-region-${region.id}`} opacity={regionOpacity}>
+                <text
+                  x={centroid.x}
+                  y={centroid.y}
+                  fill={isSelected ? (team ? team.color : "#60a5fa") : (team ? team.color : "#6b7280")}
+                  fontSize={12 / camera.zoom}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="font-mono"
+                  opacity={team ? 1 : 0.6}
+                >
+                  {region.name || (region.spaceType ? region.spaceType.toUpperCase() : 'AREA')}
+                </text>
+                {team && (
+                   <text
+                   x={centroid.x}
+                   y={centroid.y + (16 / camera.zoom)}
+                   fill={team.color}
+                   fontSize={10 / camera.zoom}
+                   textAnchor="middle"
+                   dominantBaseline="middle"
+                   className="font-mono font-bold"
+                 >
+                   {team.name}
+                 </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Edge Texts */}
+          {Object.values(document.edges).map(edge => {
+            const start = document.nodes[edge.startNodeId].position;
+            const end = document.nodes[edge.endNodeId].position;
+            const isSelected = selectedIds.includes(edge.id);
+            const len = distance(start, end);
+            
+            if (!isSelected) return null;
+
+            return (
+              <text
+                key={`text-edge-${edge.id}`}
+                x={(start.x + end.x) / 2}
+                y={(start.y + end.y) / 2 - (10 / camera.zoom)}
+                fill="#3b82f6"
+                fontSize={12 / camera.zoom}
+                textAnchor="middle"
+                className="font-mono"
+              >
+                {Math.round(len)} px
+              </text>
+            );
+          })}
+
+          {/* Furniture Texts */}
+          {Object.values(document.furniture).map(f => {
+            const team = f.teamId ? document.teams[f.teamId] : (f.hostRegionId && document.regions[f.hostRegionId]?.teamId ? document.teams[document.regions[f.hostRegionId].teamId!] : null);
+            const person = f.personId ? document.people[f.personId] : null;
+            
+            let fOpacity = 1;
+            if (viewMode === 'team_highlight' && highlightTeamId && team?.id !== highlightTeamId) {
+              fOpacity = 0.5;
+            } else if (viewMode === 'vacancies' && !(f.type === 'desk' && !f.personId)) {
+              fOpacity = 0.5;
+            }
+
+            return (
+              <g key={`text-furn-${f.id}`} transform={`translate(${f.position.x}, ${f.position.y})`} opacity={fOpacity}>
+                {person && (
+                  <text y={f.type === 'desk' ? -15 : -20} fill={team ? team.color : "#d1d5db"} fontSize={8 / camera.zoom} textAnchor="middle" className="font-semibold">
+                    {person.name}
+                  </text>
+                )}
+                {viewMode === 'vacancies' && f.type === 'desk' && !f.personId && (
+                  <text y={-15} fill="#ef4444" fontSize={8 / camera.zoom} textAnchor="middle" className="font-bold">
+                    VACANT
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Active Drawing Line Text */}
+          {activeTool === 'wall' && drawingEdgeStartNodeId && (
+            <text
+              x={(document.nodes[drawingEdgeStartNodeId].position.x + cursorWorldPosition.x) / 2}
+              y={(document.nodes[drawingEdgeStartNodeId].position.y + cursorWorldPosition.y) / 2 - (10 / camera.zoom)}
+              fill="#9ca3af"
+              fontSize={12 / camera.zoom}
+              textAnchor="middle"
+              className="font-mono"
+            >
+              {Math.round(distance(document.nodes[drawingEdgeStartNodeId].position, cursorWorldPosition))} px
+            </text>
+          )}
+        </g>
         {/* Render Marquee Selection Box */}
         {selectionBox && (
           <rect
