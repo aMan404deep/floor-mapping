@@ -21,37 +21,43 @@ export function Toolbar() {
       {tools.map(tool => (
         <button
           key={tool.id}
-          className={`p-2 rounded-md flex items-center justify-center transition-colors ${
+          className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
             !isPanning && activeTool === tool.id ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
           }`}
           onClick={() => {
             store.setIsPanning(false);
             store.setActiveTool(tool.id);
           }}
-          title={tool.label}
         >
           <tool.icon size={18} />
+          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+            {tool.label}
+          </div>
         </button>
       ))}
       <div className="w-[1px] h-6 bg-[#3e3e3e] mx-1" />
       <button
-        className={`p-2 rounded-md flex items-center justify-center transition-colors ${
+        className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
           isPanning ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
         }`}
         onClick={() => store.setIsPanning(!isPanning)}
-        title="Pan (Spacebar)"
       >
         <Hand size={18} />
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+          Pan (Spacebar)
+        </div>
       </button>
       <div className="w-[1px] h-6 bg-[#3e3e3e] mx-1" />
       <button
-        className={`p-2 rounded-md flex items-center justify-center transition-colors ${
+        className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
           gridSnapEnabled ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
         }`}
         onClick={() => store.toggleGridSnap()}
-        title="Toggle Grid Snapping"
       >
         <Grid3X3 size={18} />
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+          Toggle Grid Snapping
+        </div>
       </button>
     </div>
   );

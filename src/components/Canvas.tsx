@@ -151,6 +151,7 @@ export function Canvas() {
 
   // Local state for dragging nodes
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const [selectionBox, setSelectionBox] = useState<{ start: Point, current: Point } | null>(null);
 
   // Escape key to cancel operations
   useEffect(() => {
@@ -230,6 +231,9 @@ export function Canvas() {
         store.select(foundEdge.id, e.shiftKey);
       } else {
         store.clearSelection();
+        // Start marquee selection
+        setSelectionBox({ start: worldPt, current: worldPt });
+        svgRef.current.setPointerCapture(e.pointerId);
       }
     } else if (activeTool === 'wall') {
       // Find if we clicked on an existing node to snap
@@ -388,6 +392,11 @@ export function Canvas() {
       });
       return;
     }
+    
+    if (selectionBox) {
+      setSelectionBox(prev => prev ? { ...prev, current: worldPt } : null);
+      return;
+    }
 
     if (draggingNodeId) {
       const pt = getCanvasPoint(e);
@@ -411,6 +420,26 @@ export function Canvas() {
       svgRef.current.releasePointerCapture(e.pointerId);
     }
     
+    if (selectionBox) {
+      // Find all objects inside the box
+      const minX = Math.min(selectionBox.start.x, selectionBox.current.x);
+      const maxX = Math.max(selectionBox.start.x, selectionBox.current.x);
+      const minY = Math.min(selectionBox.start.y, selectionBox.current.y);
+      const maxY = Math.max(selectionBox.start.y, selectionBox.current.y);
+      
+      const inBox = (p: Point) => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
+      
+      const selectedNodes = Object.values(document.nodes).filter(n => inBox(n.position)).map(n => n.id);
+      const selectedFurniture = Object.values(document.furniture).filter(f => inBox(f.position)).map(f => f.id);
+      
+      if (!e.shiftKey) store.clearSelection();
+      selectedNodes.forEach(id => store.select(id, true));
+      selectedFurniture.forEach(id => store.select(id, true));
+      
+      setSelectionBox(null);
+      return;
+    }
+
     if (draggingNodeId) {
       if (document.furniture && document.furniture[draggingNodeId]) {
         store.finishMoveFurniture();
@@ -619,12 +648,42 @@ export function Canvas() {
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const pt = { x: e.clientX, y: e.clientY };
+    const worldPt = screenToWorld(pt, camera, svgRef.current!.getBoundingClientRect());
+    
+    // Find what we clicked on
+    let targetId = undefined;
+    let targetType: 'furniture' | 'node' | 'edge' | 'region' | undefined = undefined;
+
+    // Check furniture
+    for (const f of Object.values(document.furniture)) {
+      if (distance(f.position, worldPt) < 20 / camera.zoom) {
+        targetId = f.id;
+        targetType = 'furniture';
+        break;
+      }
+    }
+    
+    if (targetId) {
+      if (!selectedIds.includes(targetId)) {
+        store.select(targetId, false);
+      }
+      store.setContextMenu({ x: e.clientX, y: e.clientY, targetId, targetType });
+      return;
+    }
+
+    store.setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
   // Pre-calculate rendering stuff
   const strokeWidth = 2 / camera.zoom;
   const nodeRadius = 4 / camera.zoom;
   
   const viewMode = store.getViewMode();
   const highlightTeamId = store.getHighlightTeamId();
+  const isPreviewMode = store.getIsPreviewMode();
 
   return (
     <>
@@ -638,8 +697,7 @@ export function Canvas() {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        // Prevent default context menu
-        onContextMenu={e => e.preventDefault()}
+        onContextMenu={handleContextMenu}
       >
         <defs>
           {/* Grid patterns */}
@@ -651,7 +709,7 @@ export function Canvas() {
             <path d={`M ${50 * camera.zoom} 0 L 0 0 0 ${50 * camera.zoom}`} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
+        {!isPreviewMode && <rect width="100%" height="100%" fill="url(#grid)" />}
         
         <g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.zoom})`}>
           {/* Render regions (faces) */}
@@ -1006,6 +1064,19 @@ export function Canvas() {
               );
             })()}
           </g>
+        )}
+        {/* Render Marquee Selection Box */}
+        {selectionBox && (
+          <rect
+            x={Math.min(selectionBox.start.x, selectionBox.current.x)}
+            y={Math.min(selectionBox.start.y, selectionBox.current.y)}
+            width={Math.abs(selectionBox.start.x - selectionBox.current.x)}
+            height={Math.abs(selectionBox.start.y - selectionBox.current.y)}
+            fill="rgba(59, 130, 246, 0.1)"
+            stroke="#3b82f6"
+            strokeWidth={1 / camera.zoom}
+            pointerEvents="none"
+          />
         )}
       </g>
     </svg>

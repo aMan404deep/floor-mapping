@@ -1,6 +1,8 @@
 import React from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 import { polygonArea } from '../lib/geometry';
+import { store as editorStore } from '../store/EditorStore';
+import { X } from 'lucide-react';
 
 export function RightSidebar() {
   const store = useEditorStore();
@@ -20,9 +22,15 @@ export function RightSidebar() {
   const selected = getSelectedItem();
 
   return (
-    <div className="w-64 bg-[#2c2c2c] border-l border-[#3e3e3e] flex flex-col h-full text-zinc-300 text-sm overflow-y-auto">
-      <div className="p-4 font-semibold text-white border-b border-[#3e3e3e]">
-        Properties
+    <div className="w-full flex flex-col h-full text-zinc-300 text-sm">
+      <div className="p-3 font-semibold text-white border-b border-[#3e3e3e]/50 flex justify-between items-center">
+        <span>Properties</span>
+        <button 
+          onClick={() => editorStore.clearSelection()} 
+          className="text-zinc-400 hover:text-white p-1 rounded hover:bg-[#3e3e3e]/50 transition-colors"
+        >
+          <X size={16} />
+        </button>
       </div>
       <div className="p-4 flex-1">
         {selectedIds.length === 0 && (

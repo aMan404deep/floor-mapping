@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
-import { Trash2, Download, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, MonitorPlay } from 'lucide-react';
 import { polygonArea, polygonCentroid, distance } from '../lib/geometry';
 import { Point } from '../types';
+import { toast } from 'sonner';
 
 export function TopMenu() {
   const store = useEditorStore();
@@ -13,6 +14,7 @@ export function TopMenu() {
     if (confirmClear) {
       store.clearDocument();
       setConfirmClear(false);
+      toast.success('Canvas cleared');
     } else {
       setConfirmClear(true);
       // reset after 3 seconds
@@ -235,6 +237,7 @@ export function TopMenu() {
     a.download = 'floorplan.svg';
     a.click();
     URL.revokeObjectURL(url);
+    toast.success('Successfully exported as SVG');
   };
 
   const handleExportPng = () => {
@@ -243,29 +246,40 @@ export function TopMenu() {
       return;
     }
     
-    // We need to render the SVG string to a canvas, then export to PNG
-    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        const pngUrl = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = pngUrl;
-        a.download = 'floorplan.png';
-        a.click();
-      }
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+    toast.promise(new Promise((resolve, reject) => {
+      const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            const pngUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = 'floorplan.png';
+            a.click();
+          }
+          URL.revokeObjectURL(url);
+          resolve(true);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = () => reject(new Error('Failed to load SVG'));
+      img.src = url;
+    }), {
+      loading: 'Exporting PNG...',
+      success: 'Successfully exported as PNG',
+      error: 'Failed to export PNG'
+    });
   };
 
   return (
@@ -273,6 +287,16 @@ export function TopMenu() {
       <div className="font-semibold tracking-wide text-white">Spatial Editor</div>
       
       <div className="flex items-center gap-2">
+        <button 
+          className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-[#3e3e3e] rounded border border-transparent transition-colors"
+          onClick={() => {
+            store.clearSelection();
+            store.setIsPreviewMode(true);
+          }}
+        >
+          <MonitorPlay size={14} /> Preview
+        </button>
+        <div className="w-[1px] h-4 bg-[#4a4a4a] mx-2" />
         <button 
           className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-[#3e3e3e] rounded border border-transparent transition-colors"
           onClick={handleExportSvg}

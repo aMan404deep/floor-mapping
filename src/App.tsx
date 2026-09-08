@@ -4,7 +4,13 @@
  */
 
 import { Editor } from './components/Editor';
+import { Toaster } from 'sonner';
 
 export default function App() {
-  return <Editor />;
+  return (
+    <>
+      <Toaster position="bottom-center" theme="dark" />
+      <Editor />
+    </>
+  );
 }

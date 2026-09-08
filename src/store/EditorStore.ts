@@ -27,6 +27,13 @@ class EditorStore {
   
   private viewMode: 'default' | 'vacancies' | 'team_highlight' = 'default';
   private highlightTeamId: string | null = null;
+  
+  // UX enhancements
+  private leftSidebarOpen: boolean = true;
+  private rightSidebarOpen: boolean = true;
+  private isPreviewMode: boolean = false;
+  private selectionBox: { start: Point; end: Point } | null = null;
+  private contextMenu: { x: number; y: number; targetId?: string; targetType?: 'furniture' | 'node' | 'edge' | 'region' } | null = null;
 
   private listeners: Set<Listener> = new Set();
   
@@ -117,6 +124,14 @@ class EditorStore {
     }
   }
 
+  updateFurniture(id: string, data: Partial<SpatialFurniture>) {
+    if (this.document.furniture[id]) {
+      this.commit();
+      this.document.furniture[id] = { ...this.document.furniture[id], ...data };
+      this.emit();
+    }
+  }
+
   // Getters
   getDocument() { return this.document; }
   getCamera() { return this.camera; }
@@ -133,8 +148,21 @@ class EditorStore {
   getDragPreviewPosition() { return this.dragPreviewPosition; }
   getViewMode() { return this.viewMode; }
   getHighlightTeamId() { return this.highlightTeamId; }
+  
+  // UX Getters
+  getLeftSidebarOpen() { return this.leftSidebarOpen; }
+  getRightSidebarOpen() { return this.rightSidebarOpen; }
+  getIsPreviewMode() { return this.isPreviewMode; }
+  getSelectionBox() { return this.selectionBox; }
+  getContextMenu() { return this.contextMenu; }
 
   // Setters
+  setLeftSidebarOpen(open: boolean) { this.leftSidebarOpen = open; this.emit(); }
+  setRightSidebarOpen(open: boolean) { this.rightSidebarOpen = open; this.emit(); }
+  setIsPreviewMode(preview: boolean) { this.isPreviewMode = preview; this.emit(); }
+  setSelectionBox(box: { start: Point; end: Point } | null) { this.selectionBox = box; this.emit(); }
+  setContextMenu(menu: { x: number; y: number; targetId?: string; targetType?: 'furniture' | 'node' | 'edge' | 'region' } | null) { this.contextMenu = menu; this.emit(); }
+
   setViewMode(mode: 'default' | 'vacancies' | 'team_highlight', teamId?: string) {
     this.viewMode = mode;
     if (teamId !== undefined) {
