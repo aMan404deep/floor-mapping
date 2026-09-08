@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
 import { Toolbar } from './Toolbar';
@@ -8,7 +8,7 @@ import { ViewModes } from './ViewModes';
 import { useEditorStore } from '../store/useEditorStore';
 import { store } from '../store/EditorStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, X, Copy, RotateCw, Trash2, UserPlus, Users } from 'lucide-react';
 
 export function Editor() {
   const currentStore = useEditorStore();
@@ -17,6 +17,8 @@ export function Editor() {
   const contextMenu = currentStore.getContextMenu();
   const isPreviewMode = currentStore.getIsPreviewMode();
   
+  const [contextMenuAssign, setContextMenuAssign] = useState<'team' | 'person' | null>(null);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,6 +70,7 @@ export function Editor() {
     const handleClick = () => {
       if (store.getContextMenu()) {
         store.setContextMenu(null);
+        setContextMenuAssign(null);
       }
     };
 
@@ -154,40 +157,100 @@ export function Editor() {
                 className="absolute z-50 min-w-[160px] bg-[#2c2c2c] border border-[#3e3e3e] rounded-md shadow-2xl py-1 text-sm overflow-hidden"
               >
                 {contextMenu.targetId ? (
+                  contextMenuAssign === 'team' ? (
+                    <div className="max-h-48 overflow-y-auto">
+                      <div className="px-3 py-1 text-[10px] uppercase text-zinc-500 font-semibold">Assign Team</div>
+                      <button className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                        onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { teamId: undefined }); store.setContextMenu(null); setContextMenuAssign(null); }}>
+                        Unassign
+                      </button>
+                      {Object.values(currentStore.getDocument().teams || {}).map(t => (
+                        <button key={t.id} className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors truncate"
+                          onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { teamId: t.id }); store.setContextMenu(null); setContextMenuAssign(null); }}>
+                          {t.name}
+                        </button>
+                      ))}
+                    </div>
+                  ) : contextMenuAssign === 'person' ? (
+                    <div className="max-h-48 overflow-y-auto">
+                      <div className="px-3 py-1 text-[10px] uppercase text-zinc-500 font-semibold">Assign Person</div>
+                      <button className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                        onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { personId: undefined }); store.setContextMenu(null); setContextMenuAssign(null); }}>
+                        Unassign
+                      </button>
+                      {Object.values(currentStore.getDocument().people || {}).map(p => (
+                        <button key={p.id} className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors truncate"
+                          onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { personId: p.id }); store.setContextMenu(null); setContextMenuAssign(null); }}>
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
                   <>
                     <button 
-                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
                       onClick={() => {
                          store.deleteSelected();
                          store.setContextMenu(null);
                       }}
                     >
-                      Delete
+                      <Trash2 size={14} /> Delete
                     </button>
                     {contextMenu.targetType === 'furniture' && (
-                      <button 
-                        className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
-                        onClick={() => {
-                           const doc = store.getDocument();
-                           const f = doc.furniture[contextMenu.targetId!];
-                           if (f) store.updateFurniture(f.id, { rotation: (f.rotation + 90) % 360 });
-                           store.setContextMenu(null);
-                        }}
-                      >
-                        Rotate 90°
-                      </button>
+                      <>
+                        <button 
+                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          onClick={() => {
+                            store.duplicateFurniture(contextMenu.targetId!);
+                            store.setContextMenu(null);
+                          }}
+                        >
+                          <Copy size={14} /> Duplicate
+                        </button>
+                        <button 
+                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          onClick={() => {
+                             const doc = store.getDocument();
+                             const f = doc.furniture[contextMenu.targetId!];
+                             if (f) store.updateFurniture(f.id, { rotation: (f.rotation + 90) % 360 });
+                             store.setContextMenu(null);
+                          }}
+                        >
+                          <RotateCw size={14} /> Rotate 90°
+                        </button>
+                        <div className="h-[1px] bg-[#3e3e3e] my-1 mx-2" />
+                        <button 
+                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             setContextMenuAssign('team');
+                          }}
+                        >
+                          <Users size={14} /> Assign Team...
+                        </button>
+                        <button 
+                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             setContextMenuAssign('person');
+                          }}
+                        >
+                          <UserPlus size={14} /> Assign Person...
+                        </button>
+                      </>
                     )}
                   </>
+                  )
                 ) : (
                   <>
                     <button 
-                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
                       onClick={() => {
                          store.clearDocument();
                          store.setContextMenu(null);
                       }}
                     >
-                      Clear Canvas
+                      <Trash2 size={14} /> Clear Canvas
                     </button>
                   </>
                 )}

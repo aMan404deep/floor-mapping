@@ -132,6 +132,24 @@ class EditorStore {
     }
   }
 
+  duplicateFurniture(id: string) {
+    const f = this.document.furniture[id];
+    if (f) {
+      this.commit();
+      const newId = 'f_' + Math.random().toString(36).substr(2, 9);
+      this.document.furniture[newId] = {
+        ...f,
+        id: newId,
+        position: { x: f.position.x + 20, y: f.position.y + 20 }
+      };
+      this.selectedIds.clear();
+      this.selectedIds.add(newId);
+      this.emit();
+      return newId;
+    }
+    return null;
+  }
+
   // Getters
   getDocument() { return this.document; }
   getCamera() { return this.camera; }
