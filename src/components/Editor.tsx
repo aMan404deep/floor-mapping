@@ -85,10 +85,14 @@ export function Editor() {
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-[#1e1e1e] overflow-hidden text-zinc-300 font-sans select-none">
-      {!isPreviewMode && <TopMenu />}
+    <div className="w-full h-screen flex flex-col bg-[#0F1035] overflow-hidden text-white font-['Fredoka',sans-serif] select-none tracking-wide relative">
+      {/* Starfield background pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-40" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="relative z-10 w-full flex flex-col h-full">
+        {!isPreviewMode && <TopMenu />}
+        
+        <div className="flex-1 flex overflow-hidden relative">
         <AnimatePresence initial={false}>
           {!isPreviewMode && leftSidebarOpen && (
             <motion.div
@@ -154,18 +158,18 @@ export function Editor() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.1 }}
                 style={{ top: contextMenu.y, left: contextMenu.x }}
-                className="absolute z-50 min-w-[160px] bg-[#2c2c2c] border border-[#3e3e3e] rounded-md shadow-2xl py-1 text-sm overflow-hidden"
+                className="absolute z-50 min-w-[180px] bg-[#94a3b8] border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2 text-black font-bold uppercase tracking-wider text-xs overflow-hidden"
               >
                 {contextMenu.targetId ? (
                   contextMenuAssign === 'team' ? (
                     <div className="max-h-48 overflow-y-auto">
-                      <div className="px-3 py-1 text-[10px] uppercase text-zinc-500 font-semibold">Assign Team</div>
-                      <button className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                      <div className="px-4 py-1 text-[10px] text-white bg-black/20 mb-1">Assign Team</div>
+                      <button className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors"
                         onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { teamId: undefined }); store.setContextMenu(null); setContextMenuAssign(null); }}>
                         Unassign
                       </button>
                       {Object.values(currentStore.getDocument().teams || {}).map(t => (
-                        <button key={t.id} className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors truncate"
+                        <button key={t.id} className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors truncate"
                           onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { teamId: t.id }); store.setContextMenu(null); setContextMenuAssign(null); }}>
                           {t.name}
                         </button>
@@ -173,13 +177,13 @@ export function Editor() {
                     </div>
                   ) : contextMenuAssign === 'person' ? (
                     <div className="max-h-48 overflow-y-auto">
-                      <div className="px-3 py-1 text-[10px] uppercase text-zinc-500 font-semibold">Assign Person</div>
-                      <button className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors"
+                      <div className="px-4 py-1 text-[10px] text-white bg-black/20 mb-1">Assign Person</div>
+                      <button className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors"
                         onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { personId: undefined }); store.setContextMenu(null); setContextMenuAssign(null); }}>
                         Unassign
                       </button>
                       {Object.values(currentStore.getDocument().people || {}).map(p => (
-                        <button key={p.id} className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors truncate"
+                        <button key={p.id} className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors truncate"
                           onClick={(e) => { e.stopPropagation(); store.updateFurniture(contextMenu.targetId!, { personId: p.id }); store.setContextMenu(null); setContextMenuAssign(null); }}>
                           {p.name}
                         </button>
@@ -188,27 +192,27 @@ export function Editor() {
                   ) : (
                   <>
                     <button 
-                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 hover:bg-[#ef4444] hover:text-white transition-colors flex items-center gap-2"
                       onClick={() => {
                          store.deleteSelected();
                          store.setContextMenu(null);
                       }}
                     >
-                      <Trash2 size={14} /> Delete
+                      <Trash2 size={16} strokeWidth={3} /> Delete
                     </button>
                     {contextMenu.targetType === 'furniture' && (
                       <>
                         <button 
-                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors flex items-center gap-2"
                           onClick={() => {
                             store.duplicateFurniture(contextMenu.targetId!);
                             store.setContextMenu(null);
                           }}
                         >
-                          <Copy size={14} /> Duplicate
+                          <Copy size={16} strokeWidth={3} /> Duplicate
                         </button>
                         <button 
-                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#38bdf8] transition-colors flex items-center gap-2"
                           onClick={() => {
                              const doc = store.getDocument();
                              const f = doc.furniture[contextMenu.targetId!];
@@ -216,26 +220,26 @@ export function Editor() {
                              store.setContextMenu(null);
                           }}
                         >
-                          <RotateCw size={14} /> Rotate 90°
+                          <RotateCw size={16} strokeWidth={3} /> Rotate 90°
                         </button>
-                        <div className="h-[1px] bg-[#3e3e3e] my-1 mx-2" />
+                        <div className="h-[2px] bg-black/20 my-1 mx-2 rounded-full" />
                         <button 
-                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#a855f7] hover:text-white transition-colors flex items-center gap-2"
                           onClick={(e) => {
                              e.stopPropagation();
                              setContextMenuAssign('team');
                           }}
                         >
-                          <Users size={14} /> Assign Team...
+                          <Users size={16} strokeWidth={3} /> Assign Team...
                         </button>
                         <button 
-                          className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#a855f7] hover:text-white transition-colors flex items-center gap-2"
                           onClick={(e) => {
                              e.stopPropagation();
                              setContextMenuAssign('person');
                           }}
                         >
-                          <UserPlus size={14} /> Assign Person...
+                          <UserPlus size={16} strokeWidth={3} /> Assign Person...
                         </button>
                       </>
                     )}
@@ -244,13 +248,13 @@ export function Editor() {
                 ) : (
                   <>
                     <button 
-                      className="w-full text-left px-3 py-1.5 hover:bg-[#3b82f6] hover:text-white transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 hover:bg-[#ef4444] hover:text-white transition-colors flex items-center gap-2"
                       onClick={() => {
                          store.clearDocument();
                          store.setContextMenu(null);
                       }}
                     >
-                      <Trash2 size={14} /> Clear Canvas
+                      <Trash2 size={16} strokeWidth={3} /> Clear Canvas
                     </button>
                   </>
                 )}
@@ -258,6 +262,7 @@ export function Editor() {
             )}
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </div>
   );

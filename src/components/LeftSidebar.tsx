@@ -24,25 +24,27 @@ export function LeftSidebar() {
   };
 
   return (
-    <div className="w-64 bg-[#2c2c2c] border-r border-[#3e3e3e] flex flex-col h-full text-zinc-300 text-sm overflow-hidden">
-      <div className="flex border-b border-[#3e3e3e]">
+    <div className="w-64 bg-[#334155] border-r-4 border-black flex flex-col h-full text-white text-sm overflow-hidden font-medium shadow-[4px_0px_0px_0px_rgba(0,0,0,1)] z-20 relative">
+      <div className="flex border-b-4 border-black bg-[#1e293b]">
         <button 
-          className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 ${activeTab === 'templates' ? 'text-white border-b-2 border-blue-500' : 'text-zinc-500 hover:text-zinc-400'}`}
+          className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-colors ${activeTab === 'templates' ? 'text-black bg-[#38bdf8] shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'text-zinc-400 hover:text-white'}`}
           onClick={() => setActiveTab('templates')}
         >
-          <Shapes size={14} /> Shapes
+          <Shapes size={14} strokeWidth={3} /> Shapes
         </button>
+        <div className="w-[4px] h-full bg-black" />
         <button 
-          className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 ${activeTab === 'org' ? 'text-white border-b-2 border-blue-500' : 'text-zinc-500 hover:text-zinc-400'}`}
+          className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-colors ${activeTab === 'org' ? 'text-black bg-[#38bdf8] shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'text-zinc-400 hover:text-white'}`}
           onClick={() => setActiveTab('org')}
         >
-          <Users size={14} /> Org
+          <Users size={14} strokeWidth={3} /> Org
         </button>
+        <div className="w-[4px] h-full bg-black" />
         <button 
-          className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 ${activeTab === 'layers' ? 'text-white border-b-2 border-blue-500' : 'text-zinc-500 hover:text-zinc-400'}`}
+          className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-colors ${activeTab === 'layers' ? 'text-black bg-[#38bdf8] shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'text-zinc-400 hover:text-white'}`}
           onClick={() => setActiveTab('layers')}
         >
-          <Layers size={14} /> Layers
+          <Layers size={14} strokeWidth={3} /> Layers
         </button>
       </div>
 

@@ -283,42 +283,47 @@ export function TopMenu() {
   };
 
   return (
-    <div className="h-12 bg-[#2c2c2c] border-b border-[#3e3e3e] flex items-center justify-between px-4 shrink-0 z-50">
-      <div className="font-semibold tracking-wide text-white">Spatial Editor</div>
-      
+    <div className="h-16 bg-[#334155] border-b-4 border-black flex items-center justify-between px-6 shrink-0 z-50 relative">
       <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-[#38bdf8] rounded-xl border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <ImageIcon size={18} strokeWidth={3} className="text-black" />
+        </div>
+        <div className="font-bold text-xl tracking-wider text-white uppercase" style={{ textShadow: '2px 2px 0px #000' }}>Spatial Editor</div>
+      </div>
+      
+      <div className="flex items-center gap-3">
         <button 
-          className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-[#3e3e3e] rounded border border-transparent transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider text-black bg-[#a855f7] hover:bg-[#c084fc] rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform active:scale-90"
           onClick={() => {
             store.clearSelection();
             store.setIsPreviewMode(true);
           }}
         >
-          <MonitorPlay size={14} /> Preview
+          <MonitorPlay size={18} strokeWidth={3} /> Preview
         </button>
-        <div className="w-[1px] h-4 bg-[#4a4a4a] mx-2" />
+        <div className="w-[4px] h-8 bg-black rounded-full mx-1" />
         <button 
-          className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-[#3e3e3e] rounded border border-transparent transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider text-black bg-[#a3e635] hover:bg-[#bef264] rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform active:scale-90"
           onClick={handleExportSvg}
         >
-          <Download size={14} /> Export SVG
+          <Download size={18} strokeWidth={3} /> SVG
         </button>
         <button 
-          className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-[#3e3e3e] rounded border border-transparent transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider text-black bg-[#fbbf24] hover:bg-[#fcd34d] rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform active:scale-90"
           onClick={handleExportPng}
         >
-          <ImageIcon size={14} /> Export PNG
+          <ImageIcon size={18} strokeWidth={3} /> PNG
         </button>
-        <div className="w-[1px] h-4 bg-[#4a4a4a] mx-2" />
+        <div className="w-[4px] h-8 bg-black rounded-full mx-1" />
         <button 
-          className={`flex items-center gap-2 px-3 py-1.5 text-xs rounded border border-transparent transition-colors ${
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform active:scale-90 ${
             confirmClear 
-              ? 'text-white bg-red-600 hover:bg-red-700' 
-              : 'text-red-400 hover:text-red-300 hover:bg-red-500/10'
+              ? 'bg-[#ef4444] hover:bg-[#f87171] animate-pulse' 
+              : 'bg-[#dc2626] hover:bg-[#ef4444]'
           }`}
           onClick={handleClear}
         >
-          <Trash2 size={14} /> {confirmClear ? 'Click again to confirm' : 'Clear'}
+          <Trash2 size={18} strokeWidth={3} /> {confirmClear ? 'CONFIRM?' : 'CLEAR'}
         </button>
       </div>
     </div>

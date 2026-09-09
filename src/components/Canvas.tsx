@@ -678,8 +678,8 @@ export function Canvas() {
   };
 
   // Pre-calculate rendering stuff
-  const strokeWidth = 2 / camera.zoom;
-  const nodeRadius = 4 / camera.zoom;
+  const strokeWidth = 4 / camera.zoom;
+  const nodeRadius = 8 / camera.zoom;
   
   const viewMode = store.getViewMode();
   const highlightTeamId = store.getHighlightTeamId();
@@ -689,7 +689,7 @@ export function Canvas() {
     <>
       <svg 
         ref={svgRef}
-        className={`w-full h-full bg-[#1e1e1e] touch-none ${isPanning ? 'cursor-grab active:cursor-grabbing' : activeTool === 'wall' ? 'cursor-crosshair' : 'cursor-default'}`}
+        className={`w-full h-full bg-transparent touch-none ${isPanning ? 'cursor-grab active:cursor-grabbing' : activeTool === 'wall' ? 'cursor-crosshair' : 'cursor-default'}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -706,7 +706,7 @@ export function Canvas() {
           </pattern>
           <pattern id="grid" width={50 * camera.zoom} height={50 * camera.zoom} patternUnits="userSpaceOnUse" patternTransform={`translate(${camera.x}, ${camera.y})`}>
             <rect width={50 * camera.zoom} height={50 * camera.zoom} fill="url(#smallGrid)" />
-            <path d={`M ${50 * camera.zoom} 0 L 0 0 0 ${50 * camera.zoom}`} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+            <path d={`M ${50 * camera.zoom} 0 L 0 0 0 ${50 * camera.zoom}`} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
           </pattern>
         </defs>
         {!isPreviewMode && <rect width="100%" height="100%" fill="url(#grid)" />}
@@ -797,7 +797,7 @@ export function Canvas() {
               <line
                 x1={start.x} y1={start.y}
                 x2={end.x} y2={end.y}
-                stroke={isSelected ? '#3b82f6' : '#d1d5db'}
+                stroke={isSelected ? '#38bdf8' : '#000000'}
                 strokeWidth={isSelected ? strokeWidth * 1.5 : strokeWidth}
                 strokeLinecap="round"
               />
@@ -823,7 +823,7 @@ export function Canvas() {
                 const cx = start.x + dx * (el.t * len);
                 const cy = start.y + dy * (el.t * len);
                 const isSelected = selectedIds.includes(el.id);
-                const color = isSelected ? '#3b82f6' : '#9ca3af';
+                const color = isSelected ? '#38bdf8' : '#cbd5e1';
                 
                 return (
                   <g 
@@ -838,7 +838,7 @@ export function Canvas() {
                     }}
                   >
                     {/* Background to 'break' the wall line visually */}
-                    <rect x={-el.length/2} y={-strokeWidth} width={el.length} height={strokeWidth*2} fill="#1e1e1e" />
+                    <rect x={-el.length/2} y={-strokeWidth} width={el.length} height={strokeWidth*2} fill="#0F1035" />
                     
                     {el.type === 'door' && (
                       <g>
@@ -848,8 +848,8 @@ export function Canvas() {
                     )}
                     {el.type === 'window' && (
                       <g>
-                        <rect x={-el.length/2} y={-2/camera.zoom} width={el.length} height={4/camera.zoom} fill="none" stroke={color} strokeWidth={strokeWidth * 0.5} />
-                        <line x1={-el.length/2} y1={0} x2={el.length/2} y2={0} stroke="#60a5fa" strokeWidth={strokeWidth * 0.5} />
+                        <rect x={-el.length/2} y={-2/camera.zoom} width={el.length} height={4/camera.zoom} fill="#38bdf8" stroke="#000000" strokeWidth={strokeWidth * 0.5} />
+                        <line x1={-el.length/2} y1={0} x2={el.length/2} y2={0} stroke="#000000" strokeWidth={strokeWidth * 0.5} />
                       </g>
                     )}
                   </g>
@@ -865,23 +865,23 @@ export function Canvas() {
           const team = f.teamId ? document.teams[f.teamId] : (f.hostRegionId && document.regions[f.hostRegionId]?.teamId ? document.teams[document.regions[f.hostRegionId].teamId!] : null);
           const person = f.personId ? document.people[f.personId] : null;
 
-          let baseFill = team ? team.color : (f.type === 'plant' ? '#166534' : (f.type === 'chair' ? '#6b7280' : (f.type === 'whiteboard' ? '#e4e4e7' : '#4b5563')));
-          let strokeColor = isSelected ? "#3b82f6" : (f.type === 'plant' ? '#14532d' : (f.type === 'whiteboard' ? '#a1a1aa' : '#1f2937'));
+          let baseFill = team ? team.color : (f.type === 'plant' ? '#22c55e' : (f.type === 'chair' ? '#94a3b8' : (f.type === 'whiteboard' ? '#f8fafc' : '#cbd5e1')));
+          let strokeColor = isSelected ? "#38bdf8" : "#000000";
           let fOpacity = 1;
 
           if (viewMode === 'team_highlight' && highlightTeamId) {
             if (team?.id !== highlightTeamId) {
               baseFill = "rgba(100, 100, 100, 0.2)";
-              strokeColor = "rgba(100, 100, 100, 0.5)";
+              strokeColor = "rgba(0, 0, 0, 0.5)";
               fOpacity = 0.5;
             }
           } else if (viewMode === 'vacancies') {
             if (f.type === 'desk' && !f.personId) {
               baseFill = "#ef4444"; // Red for vacant desks
-              strokeColor = "#b91c1c";
+              strokeColor = "#000000";
             } else {
               baseFill = "rgba(100, 100, 100, 0.2)";
-              strokeColor = "rgba(100, 100, 100, 0.5)";
+              strokeColor = "rgba(0, 0, 0, 0.5)";
               fOpacity = 0.5;
             }
           }
@@ -964,9 +964,9 @@ export function Canvas() {
               cx={node.position.x}
               cy={node.position.y}
               r={nodeRadius * (isHovered ? 1.5 : 1)}
-              fill={isSelected ? '#3b82f6' : isHovered ? '#10b981' : '#f3f4f6'}
-              stroke="#1e1e1e"
-              strokeWidth={strokeWidth * 0.5}
+              fill={isSelected ? '#38bdf8' : isHovered ? '#a3e635' : '#cbd5e1'}
+              stroke="#000000"
+              strokeWidth={strokeWidth}
             />
           );
         })}
@@ -975,8 +975,8 @@ export function Canvas() {
         {store.getDraggingShapeType() && dragPreviewPosition && (
           <path
             d={`M ${getShapePoints(store.getDraggingShapeType()!, dragPreviewPosition).map(p => `${p.x} ${p.y}`).join(' L ')} Z`}
-            fill="rgba(59, 130, 246, 0.2)"
-            stroke="#3b82f6"
+            fill="rgba(56, 189, 248, 0.2)"
+            stroke="#38bdf8"
             strokeWidth={strokeWidth}
             strokeDasharray={`${5/camera.zoom},${5/camera.zoom}`}
             pointerEvents="none"
@@ -984,7 +984,7 @@ export function Canvas() {
         )}
         {store.getDraggingFurnitureType() && dragPreviewPosition && (
           <g transform={`translate(${dragPreviewPosition.x}, ${dragPreviewPosition.y})`} opacity={0.6} pointerEvents="none">
-             <FurnitureShape type={store.getDraggingFurnitureType()!} strokeColor="#3b82f6" baseFill="rgba(59, 130, 246, 0.2)" strokeWidth={strokeWidth} />
+             <FurnitureShape type={store.getDraggingFurnitureType()!} strokeColor="#38bdf8" baseFill="rgba(56, 189, 248, 0.2)" strokeWidth={strokeWidth} />
           </g>
         )}
         {store.getDraggingTemplateType() && dragPreviewPosition && (

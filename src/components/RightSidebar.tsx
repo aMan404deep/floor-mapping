@@ -22,14 +22,14 @@ export function RightSidebar() {
   const selected = getSelectedItem();
 
   return (
-    <div className="w-full flex flex-col h-full text-zinc-300 text-sm">
-      <div className="p-3 font-semibold text-white border-b border-[#3e3e3e]/50 flex justify-between items-center">
+    <div className="w-full flex flex-col h-full text-white text-sm bg-[#334155] border-4 border-black rounded-xl overflow-hidden font-medium">
+      <div className="p-3 font-bold text-white border-b-4 border-black bg-[#1e293b] flex justify-between items-center tracking-wider uppercase">
         <span>Properties</span>
         <button 
           onClick={() => editorStore.clearSelection()} 
-          className="text-zinc-400 hover:text-white p-1 rounded hover:bg-[#3e3e3e]/50 transition-colors"
+          className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-black/30 transition-colors"
         >
-          <X size={16} />
+          <X size={20} strokeWidth={3} />
         </button>
       </div>
       <div className="p-4 flex-1">

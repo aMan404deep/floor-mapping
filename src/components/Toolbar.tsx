@@ -17,45 +17,45 @@ export function Toolbar() {
   ] as const;
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-[#2c2c2c] border border-[#3e3e3e] rounded-lg shadow-xl z-10">
+    <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-[#475569] border-4 border-black rounded-[24px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-10">
       {tools.map(tool => (
         <button
           key={tool.id}
-          className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
-            !isPanning && activeTool === tool.id ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
+          className={`relative p-3 rounded-xl flex items-center justify-center border-4 border-transparent transition-transform active:scale-90 group ${
+            !isPanning && activeTool === tool.id ? 'bg-[#38bdf8] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'bg-[#94a3b8] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)] hover:bg-[#cbd5e1]'
           }`}
           onClick={() => {
             store.setIsPanning(false);
             store.setActiveTool(tool.id);
           }}
         >
-          <tool.icon size={18} />
-          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+          <tool.icon size={22} strokeWidth={3} />
+          <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border-2 border-white">
             {tool.label}
           </div>
         </button>
       ))}
-      <div className="w-[1px] h-6 bg-[#3e3e3e] mx-1" />
+      <div className="w-[4px] h-8 bg-black rounded-full mx-1" />
       <button
-        className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
-          isPanning ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
+        className={`relative p-3 rounded-xl flex items-center justify-center border-4 border-transparent transition-transform active:scale-90 group ${
+          isPanning ? 'bg-[#38bdf8] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'bg-[#94a3b8] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)] hover:bg-[#cbd5e1]'
         }`}
         onClick={() => store.setIsPanning(!isPanning)}
       >
-        <Hand size={18} />
-        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+        <Hand size={22} strokeWidth={3} />
+        <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border-2 border-white">
           Pan (Spacebar)
         </div>
       </button>
-      <div className="w-[1px] h-6 bg-[#3e3e3e] mx-1" />
+      <div className="w-[4px] h-8 bg-black rounded-full mx-1" />
       <button
-        className={`relative p-2 rounded-md flex items-center justify-center transition-colors group ${
-          gridSnapEnabled ? 'bg-[#404040] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#383838]'
+        className={`relative p-3 rounded-xl flex items-center justify-center border-4 border-transparent transition-transform active:scale-90 group ${
+          gridSnapEnabled ? 'bg-[#a3e635] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)]' : 'bg-[#94a3b8] border-black text-black shadow-[inset_0px_-3px_0px_rgba(0,0,0,0.2)] hover:bg-[#cbd5e1]'
         }`}
         onClick={() => store.toggleGridSnap()}
       >
-        <Grid3X3 size={18} />
-        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+        <Grid3X3 size={22} strokeWidth={3} />
+        <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border-2 border-white">
           Toggle Grid Snapping
         </div>
       </button>
